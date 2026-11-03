@@ -12,11 +12,16 @@
 
   var DEFAULTS = {
     provider: 'gemini', geminiKey: '', groqKey: '',
-    geminiModel: 'gemini-2.5-flash', groqModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
+    geminiModel: 'gemini-3.8-flash', groqModel: 'meta-llama/llama-4-scout-17b-16e-instruct',
     concurrency: 2, intervalMs: 4000, illustration: 'yes'
   };
   function safeParse(s) { try { return JSON.parse(s) || {}; } catch (e) { return {}; } }
   var settings = Object.assign({}, DEFAULTS, safeParse(localStorage.getItem('msh-settings')));
+  // model lama yang sudah ditutup untuk pengguna baru -> pindah ke default baru
+  if (settings.geminiModel === 'gemini-2.5-flash') {
+    settings.geminiModel = DEFAULTS.geminiModel;
+    try { localStorage.setItem('msh-settings', JSON.stringify(settings)); } catch (e) { /* abaikan */ }
+  }
 
   var state = { root: null, rootName: '', assets: [], running: false, stop: false };
   var seq = 0;
