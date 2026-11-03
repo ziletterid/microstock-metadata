@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microstock Metadata Helper</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <h1>Microstock Metadata Helper</h1>
+    <p id="folderLabel" class="muted">Belum ada folder dipilih</p>
+  </div>
+  <button id="btnSettings" class="ghost">Pengaturan</button>
+</header>
+
+<section class="toolbar">
+  <div class="group">
+    <button id="btnPick" class="primary">1. Pilih Folder</button>
+    <input id="fallbackInput" type="file" webkitdirectory multiple hidden>
+  </div>
+  <div class="group grow">
+    <input id="ctxInput" type="text" placeholder="Konteks batch (opsional), mis. &quot;pola ornamen Natal seamless, motion graphic 4K loop&quot;">
+  </div>
+  <div class="group">
+    <button id="btnGenerate" class="primary" disabled>2. Generate AI</button>
+    <button id="btnStop" class="danger" hidden>Hentikan</button>
+    <button id="btnBulk" disabled>Edit massal</button>
+  </div>
+  <div class="group">
+    <button id="btnRename" disabled>3. Rename</button>
+    <button id="btnCsvAdobe" disabled>4. CSV Adobe</button>
+    <button id="btnCsvSS" disabled>4. CSV Shutterstock</button>
+  </div>
+</section>
+
+<section class="statusbar">
+  <span id="summary" class="muted">—</span>
+  <div class="bar" id="barWrap" hidden><div id="barFill"></div></div>
+  <span id="progressText" class="muted"></span>
+</section>
+
+<main>
+  <div id="empty" class="empty">
+    <p><strong>Mulai:</strong> klik <em>Pilih Folder</em>, lalu pilih folder berisi aset (JPG/PNG/MP4/MOV).</p>
+    <p class="muted">Semua proses berjalan di browser Anda. File tidak diunggah ke server mana pun; hanya gambar kecil (maks 768 px) yang dikirim ke Gemini/Groq memakai API key Anda.</p>
+  </div>
+  <table id="grid" hidden>
+    <thead>
+      <tr>
+        <th class="c-sel"><input type="checkbox" id="selAll"></th>
+        <th class="c-thumb"></th>
+        <th class="c-name">File</th>
+        <th class="c-title">Judul</th>
+        <th class="c-desc">Deskripsi</th>
+        <th class="c-kw">Keyword</th>
+        <th class="c-cat">Kategori</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+
+<!-- Pengaturan -->
+<dialog id="dlgSettings">
+  <form method="dialog" class="dlg">
+    <h2>Pengaturan</h2>
+    <label>Penyedia AI
+      <select id="sProvider">
+        <option value="gemini">Google Gemini</option>
+        <option value="groq">Groq</option>
+      </select>
+    </label>
+    <label>Gemini API key <input id="sGeminiKey" type="password" autocomplete="off" placeholder="AIza..."></label>
+    <label>Model Gemini <input id="sGeminiModel" type="text"></label>
+    <label>Groq API key <input id="sGroqKey" type="password" autocomplete="off" placeholder="gsk_..."></label>
+    <label>Model Groq (harus mendukung gambar) <input id="sGroqModel" type="text"></label>
+    <div class="row2">
+      <label>Paralel <input id="sConc" type="number" min="1" max="6"></label>
+      <label>Jeda antar permintaan (ms) <input id="sInterval" type="number" min="0" step="500"></label>
+    </div>
+    <label>Shutterstock: tandai sebagai ilustrasi
+      <select id="sIllu"><option value="yes">Ya (yes)</option><option value="no">Tidak (no)</option></select>
+    </label>
+    <p class="muted small">API key disimpan hanya di browser ini (localStorage) dan hanya dikirim ke Google/Groq. Tier gratis punya batas permintaan; naikkan jeda kalau sering kena limit.</p>
+    <div class="actions">
+      <button value="cancel">Batal</button>
+      <button id="sSave" value="ok" class="primary">Simpan</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Edit massal -->
+<dialog id="dlgBulk">
+  <form method="dialog" class="dlg">
+    <h2>Edit massal keyword</h2>
+    <label>Keyword (pisahkan dengan koma)
+      <textarea id="bKw" rows="3" placeholder="christmas, festive, seamless pattern"></textarea>
+    </label>
+    <label>Aksi
+      <select id="bMode">
+        <option value="append">Tambah di akhir</option>
+        <option value="prepend">Tambah di awal</option>
+        <option value="remove">Hapus keyword ini</option>
+      </select>
+    </label>
+    <label>Target
+      <select id="bTarget">
+        <option value="selected">Baris terpilih</option>
+        <option value="all">Semua baris</option>
+      </select>
+    </label>
+    <div class="actions">
+      <button value="cancel">Batal</button>
+      <button id="bApply" value="ok" class="primary">Terapkan</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Rename -->
+<dialog id="dlgRename">
+  <form method="dialog" class="dlg wide">
+    <h2>Pratinjau rename</h2>
+    <p id="renameInfo" class="muted small"></p>
+    <div id="renameList" class="renamelist"></div>
+    <div class="actions">
+      <button value="cancel">Batal</button>
+      <button id="rApply" value="ok" class="primary">Terapkan</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/core.js"></script>
+<script src="js/platforms.js"></script>
+<script src="js/files.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
